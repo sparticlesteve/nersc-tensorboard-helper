@@ -3,6 +3,13 @@ from tensorboard import notebook
 import getpass
 from IPython.core.display import display, HTML
 
+def _build_tb_address(port='%PORT%'):
+    address = f"https://jupyter.nersc.gov{os.environ['JUPYTERHUB_SERVICE_PREFIX']}proxy/{port}/"
+    return address
+
+def set_tb_proxy_address():
+    os.environ['TENSORBOARD_PROXY_URL'] = _build_tb_address()
+
 def get_pid_owner(pid):
     # the /proc/PID is owned by process creator
     proc_stat_file = os.stat("/proc/%d" % pid)
@@ -24,8 +31,6 @@ def tb_address():
     username = getpass.getuser()
     tb_port = get_tb_port(username)
     
-    address = "https://jupyter.nersc.gov" + os.environ['JUPYTERHUB_SERVICE_PREFIX'] + 'proxy/' + str(tb_port) + "/"
-
-    address = address.strip()
+    address = _build_tb_address(tb_port)
     
     display(HTML('<a href="%s">%s</a>'%(address,address)))
